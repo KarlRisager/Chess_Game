@@ -12,7 +12,7 @@ class Pawn:
         if self.color == WHITE:
             pic = pygame.image.load('Images\white_pawn.png').convert_alpha()
         else:
-            pass
+            pic = pygame.image.load('Images\\black_pawn.png').convert_alpha()
         self.pic = pygame.transform.scale(pic, (SQUARE_SIZE, SQUARE_SIZE))
         self.calc_pos()
         self.block = pygame.Rect(self.x, self.y, SQUARE_SIZE, SQUARE_SIZE)
