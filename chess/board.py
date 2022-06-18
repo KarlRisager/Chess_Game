@@ -1,22 +1,15 @@
 import pygame
-from .constants import COLS, WHITE, BLACK, SQUARE_SIZE, ROWS
-from .pieces import test_piece
+from .constants import COLS, WHITE, BLACK, BROWN, SQUARE_SIZE, ROWS
+from .pieces import Pawn
 
 
 class Board:
     def __init__(self):
-        self.board = [[test_piece(5,4),None,None,None,None,None,None,None],
-        [None,None,None,None,None,None,None,None],
-        [None,None,None,None,None,None,None,None],
-        [None,None,None,None,None,None,None,None],
-        [None,None,None,None,None,None,None,None],
-        [None,None,None,None,None,None,None,None],
-        [None,None,None,None,None,None,None,None],
-        [None,None,None,None,None,None,None,None]]
+        self.pieces = [Pawn(6,0, WHITE),Pawn(6,1, WHITE),Pawn(6,2, WHITE),Pawn(6,3, WHITE),Pawn(6,4, WHITE),Pawn(6,5, WHITE),Pawn(6,6, WHITE),Pawn(6,7, WHITE)]
         self.selected_piece = None
         
     def draw_board(self, win):
-        win.fill(BLACK)
+        win.fill(BROWN)
         for row in range(ROWS):
             for col in range(row%2, ROWS, 2):
                 pygame.draw.rect(win, WHITE, (row*SQUARE_SIZE, col*SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
@@ -26,9 +19,7 @@ class Board:
     
     def draw(self, win):
         self.draw_board(win)
-        for r in range(ROWS):
-            for c in range(COLS):
-                piece = self.board[r][c]
+        for piece in self.pieces:
                 if piece != None:
                     piece.draw(win)
 
