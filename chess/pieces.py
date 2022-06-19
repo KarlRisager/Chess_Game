@@ -9,6 +9,7 @@ class Pawn:
         self.col = col
         self.x = 0
         self.y = 0
+        self.unmoved = True
         if self.color == WHITE:
             pic = pygame.image.load('Images\white_pawn.png').convert_alpha()
         else:
@@ -26,6 +27,7 @@ class Pawn:
         win.blit(self.pic, self.block)
 
     def move(self,r,c):
+        self.unmoved = False
         self.row = r
         self.col = c
         self.calc_pos()

@@ -1,6 +1,10 @@
 import pygame
 from chess.constants import WIDTH, HEIGHT, SQUARE_SIZE
 from chess.board import Board
+from chess.game import Game
+from chess.pieces import Pawn
+
+
 FPS = 60
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Chess')
@@ -14,8 +18,8 @@ def get_pos_from_mouse(pos):
 def main():
     run = True
     clock = pygame.time.Clock()
-    board = Board()
-
+    game = Game(WIN)
+    
     while run:
         clock.tick(FPS)
 
@@ -25,15 +29,12 @@ def main():
             if event.type ==pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 row, col = get_pos_from_mouse(pos)
-                print(row)
-                print(col)
-                piece = board.get_piece(row, col)
+                piece = game.board.get_piece(row, col)
                 if piece != None:
                     c = piece.col
                     r = piece.row
-                    board.move(piece, r-1,c)
-        board.draw(WIN)
-        pygame.display.update()
+                    game.move(piece, r-1,c)
+        game.update()
 
 
     pygame.quit()
