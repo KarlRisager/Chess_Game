@@ -1,3 +1,4 @@
+from pickle import FALSE
 from tabnanny import check
 import pygame
 from pyparsing import White
@@ -185,7 +186,6 @@ class Game:
                     if piece_at != None:
                         further[6] = False
 
-        temp_valid_list = valid_list
         for move in valid_list[:]:
             y,x = move
             r = row + y
@@ -221,8 +221,11 @@ class Game:
                 self.board.pieces.remove(piece)
                 self.board.pieces.append(temp_piece)
     #pos should only not be None, if used in check_chech_mate
+    
+
     def check_check(self, color, pos):
         lst = []
+        king = None
         op = None
         king_pos = pos
         if pos == None:
@@ -232,7 +235,6 @@ class Game:
             op = BLACK
         else:
             op = WHITE
-
         op_pieces = self.get_pieces(op)
         for piece in op_pieces:
             lst.extend(self.possible_next_pos(piece))
@@ -240,21 +242,76 @@ class Game:
             return True
         else:
             return False
-        
-    #doesn't work
+ 
+
     def check_check_mate(self, color):
         king = self.get_king(color)
-        king_pos = (king.row, king.col)
-        possible_king_pos = self.get_valid_moves(king)
+        possible_king_pos = self.possible_next_pos(king)
         check_mate = []
         for pos in possible_king_pos:
             check_mate.append(self.check_check(color, pos))
-                
-        if False in check_mate:
+        if False in check_mate or len(check_mate) == 0:
             return False
         else:
-            return True
+            if color == WHITE:
+                op = BLACK
+            else:
+                op = WHITE
+            offensive_pieces = self.get_pieces(op)
+            deffensive_pieces = self.get_pieces(color)
+            number_of = 0
+            number_of_in_danger =0
+            for piece in offensive_pieces:
+                if self.is_danger_to2(piece, king):
+                    number_of += 1
+                    for def_piece in deffensive_pieces:
+                        if self.is_danger_to2(def_piece, piece):
+                            number_of_in_danger += 1
+                            break
+            print(number_of,number_of_in_danger)
+            
+            if number_of == number_of_in_danger:
+                return False
+        return True
+
         
+    def is_danger_to(self, piece):
+        possible_pos = self.possible_next_pos(piece)
+        op = BLACK
+        if piece.color == BLACK:
+            op = WHITE
+        scared_pieces = self.get_pieces(op)
+        for piece in scared_pieces[:]:
+            pos = (piece.row, piece.col)
+            if not(pos in possible_pos):
+                scared_pieces.remove(piece)
+        return scared_pieces
+
+    def is_danger_to2(self,offensive_piece, defensive_piece):
+        possible_attack_squares = self.possible_next_pos(offensive_piece)
+        def_pos = (defensive_piece.row, defensive_piece.col)
+        if def_pos in possible_attack_squares:
+            return True
+        else:
+            return False
+
+
+    def is_in_danger(self, piece):
+        pos = (piece.row,piece.col)
+        lst = []
+        if piece.color == WHITE:
+            op = BLACK
+        else:
+            op = WHITE
+        op_pieces = self.get_pieces(op)
+        for piece in op_pieces:
+            lst.extend(self.possible_next_pos(piece))
+        if pos in lst:
+            return True
+        else:
+            return False
+
+
 
     def get_king(self, color):
         for piece in self.get_pieces(color):
