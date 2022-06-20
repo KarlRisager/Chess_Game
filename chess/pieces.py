@@ -1,5 +1,5 @@
 import pygame
-from .constants import GREY, SQUARE_SIZE, WHITE
+from .constants import BLACK, GREY, SQUARE_SIZE, WHITE
 
 class Pawn:
 
@@ -31,6 +31,9 @@ class Pawn:
         self.row = r
         self.col = c
         self.calc_pos()
+
+    
+
 
 class Rook:
 

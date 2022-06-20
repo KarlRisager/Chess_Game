@@ -1,5 +1,5 @@
 import pygame
-from chess.constants import WIDTH, HEIGHT, SQUARE_SIZE
+from chess.constants import WHITE, WIDTH, HEIGHT, SQUARE_SIZE
 from chess.board import Board
 from chess.game import Game
 from chess.pieces import Pawn

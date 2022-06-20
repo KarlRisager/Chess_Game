@@ -41,6 +41,8 @@ class Board:
     def check_collision(self):
         pass
 
+
+
     def draw(self, win):
         self.draw_board(win)
         for piece in self.pieces:
