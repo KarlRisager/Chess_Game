@@ -43,6 +43,7 @@ class Rook:
         self.col = col
         self.x = 0
         self.y = 0
+        self.unmoved = True
         if self.color == WHITE:
             pic = pygame.image.load('Images\white_rook.png').convert_alpha()
         else:
@@ -60,6 +61,7 @@ class Rook:
         win.blit(self.pic, self.block)
 
     def move(self,r,c):
+        self.unmoved = False
         self.row = r
         self.col = c
         self.calc_pos()
@@ -101,6 +103,7 @@ class Knight:
         self.col = col
         self.x = 0
         self.y = 0
+        self.unmoved = True
         if self.color == WHITE:
             pic = pygame.image.load('Images\white_knight.png').convert_alpha()
         else:
@@ -118,6 +121,7 @@ class Knight:
         win.blit(self.pic, self.block)
 
     def move(self,r,c):
+        self.unmoved = False
         self.row = r
         self.col = c
         self.calc_pos()

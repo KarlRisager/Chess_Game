@@ -1,5 +1,5 @@
 import pygame
-from chess.constants import WHITE, WIDTH, HEIGHT, SQUARE_SIZE
+from chess.constants import BLACK, WHITE, WIDTH, HEIGHT, SQUARE_SIZE
 from chess.board import Board
 from chess.game import Game
 from chess.pieces import Pawn
@@ -43,6 +43,7 @@ def main():
                     valid_moves = game.get_valid_moves(piece)
                     if move in valid_moves:
                         game.move(piece, row, col)
+                    print(game.check_check(BLACK, None))
                     choice_made = False
         game.update()
 

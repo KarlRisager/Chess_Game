@@ -1,4 +1,6 @@
+from tabnanny import check
 import pygame
+from pyparsing import White
 
 from chess.pieces import Pawn, Rook, Bishop, Knight, King, Queen
 from .constants import BLACK, SQUARE_SIZE, WHITE, BROWN, ROWS, COLS
@@ -39,6 +41,13 @@ class Game:
                 lst.append((piece.row,piece.col))
         return lst
     
+    def get_pieces(self, color):
+        lst = []
+        for piece in self.board.pieces:
+            if piece.color == color:
+                lst.append(piece)
+        return lst
+
     def get_valid_moves(self, piece):
         color = piece.color
         #f = [N,NE,E,SE,S,SW,W,NW]
@@ -175,8 +184,7 @@ class Game:
                     piece_at = self.board.get_piece(row,col-r)
                     if piece_at != None:
                         further[6] = False
-        print('possible moves:')
-        print(valid_list)
+
         temp_valid_list = valid_list
         for move in valid_list[:]:
             y,x = move
@@ -192,6 +200,15 @@ class Game:
     
         return valid_list
 
+    def possible_next_pos(self, piece):
+        lst = []
+        for pos in self.get_valid_moves(piece):
+            r,c = pos
+            next_pos = (piece.row + r, piece.col + c)
+            lst.append(next_pos)
+        lst.append((piece.row, piece.col))
+        return lst
+
     def pawn_to_queen(self):
         for piece in self.board.pieces:
             typo = type(piece).__name__
@@ -203,5 +220,48 @@ class Game:
                 temp_piece = Queen(piece.row, piece.col, piece.color)
                 self.board.pieces.remove(piece)
                 self.board.pieces.append(temp_piece)
+    #pos should only not be None, if used in check_chech_mate
+    def check_check(self, color, pos):
+        lst = []
+        op = None
+        king_pos = pos
+        if pos == None:
+            king = self.get_king(color)
+            king_pos = (king.row, king.col)
+        if color == WHITE:
+            op = BLACK
+        else:
+            op = WHITE
+
+        op_pieces = self.get_pieces(op)
+        for piece in op_pieces:
+            lst.extend(self.possible_next_pos(piece))
+        if king_pos in lst:
+            return True
+        else:
+            return False
+        
+    #doesn't work
+    def check_check_mate(self, color):
+        king = self.get_king(color)
+        king_pos = (king.row, king.col)
+        possible_king_pos = self.get_valid_moves(king)
+        check_mate = []
+        for pos in possible_king_pos:
+            check_mate.append(self.check_check(color, pos))
+                
+        if False in check_mate:
+            return False
+        else:
+            return True
+        
+
+    def get_king(self, color):
+        for piece in self.get_pieces(color):
+            typo = type(piece).__name__
+            if typo == 'King':
+                return piece
+        
+
     
 
