@@ -1,7 +1,4 @@
-from pickle import FALSE
-from tabnanny import check
 import pygame
-from pyparsing import White
 
 from chess.pieces import Pawn, Rook, Bishop, Knight, King, Queen
 from .constants import BLACK, SQUARE_SIZE, WHITE, BROWN, ROWS, COLS
@@ -13,6 +10,7 @@ class Game:
         self.win = win
 
     def update(self):
+        '''Draws all changes and updates thescreen'''
         self.board.draw(self.win)
         pygame.display.update()
     
@@ -22,12 +20,15 @@ class Game:
         self.turn = WHITE
     
     def reset(self):
+        '''Resets the game'''
         self._init()
     
     def remove(self,piece):
+        '''Removes piece from board'''
         self.board.pieces.remove(piece)
     
     def move(self, piece, row, col):
+        ''''Moves piece to position (row,col)'''
         color = piece.color
         piece_at_pos = self.board.get_piece(row,col)
         if piece_at_pos != None and piece_at_pos.color != color:
@@ -36,6 +37,7 @@ class Game:
         self.pawn_to_queen()
     
     def get_pos_off_pieces(self, color):
+        '''Returns a list of positions of pieces, that have the color color'''
         lst = []
         for piece in self.board.pieces:
             if piece.color == color:
@@ -43,6 +45,7 @@ class Game:
         return lst
     
     def get_pieces(self, color):
+        '''Returns a list of pieces, that have the color color'''
         lst = []
         for piece in self.board.pieces:
             if piece.color == color:
@@ -50,6 +53,7 @@ class Game:
         return lst
 
     def get_valid_moves(self, piece):
+        '''Returns a list of moves, that are valid for piece'''
         color = piece.color
         #f = [N,NE,E,SE,S,SW,W,NW]
         further = [True,True,True,True,True,True,True,True]
@@ -201,6 +205,7 @@ class Game:
         return valid_list
 
     def possible_next_pos(self, piece):
+        '''Returns a list of position, that piece can have after a single valid move'''
         lst = []
         for pos in self.get_valid_moves(piece):
             r,c = pos
@@ -210,6 +215,7 @@ class Game:
         return lst
 
     def pawn_to_queen(self):
+        '''Makes all the pawns, that have reached the other side of the boead, queens'''
         for piece in self.board.pieces:
             typo = type(piece).__name__
             if typo == 'Pawn' and piece.color == WHITE and piece.row == 0:
@@ -220,10 +226,11 @@ class Game:
                 temp_piece = Queen(piece.row, piece.col, piece.color)
                 self.board.pieces.remove(piece)
                 self.board.pieces.append(temp_piece)
-    #pos should only not be None, if used in check_chech_mate
+
     
 
     def check_check(self, color, pos):
+        '''checks if the king of color is checked, or the king of color in position pos is checked'''
         lst = []
         king = None
         op = None
@@ -245,6 +252,7 @@ class Game:
  
 
     def check_check_mate(self, color):
+        '''checks if there is a check mate i.e. the game is over'''
         king = self.get_king(color)
         possible_king_pos = self.possible_next_pos(king)
         check_mate = []
@@ -276,6 +284,7 @@ class Game:
 
         
     def is_danger_to(self, piece):
+        '''Returns a list of pieces, that piece threatens'''
         possible_pos = self.possible_next_pos(piece)
         op = BLACK
         if piece.color == BLACK:
@@ -288,6 +297,7 @@ class Game:
         return scared_pieces
 
     def is_danger_to2(self,offensive_piece, defensive_piece):
+        '''checks if offensive_piece threatens defensive_piece'''
         possible_attack_squares = self.possible_next_pos(offensive_piece)
         def_pos = (defensive_piece.row, defensive_piece.col)
         if def_pos in possible_attack_squares:
@@ -297,6 +307,7 @@ class Game:
 
 
     def is_in_danger(self, piece):
+        '''checks if piece is threatend'''
         pos = (piece.row,piece.col)
         lst = []
         if piece.color == WHITE:
@@ -314,6 +325,7 @@ class Game:
 
 
     def get_king(self, color):
+        '''returns king of color'''
         for piece in self.get_pieces(color):
             typo = type(piece).__name__
             if typo == 'King':

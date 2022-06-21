@@ -1,4 +1,3 @@
-import black
 import pygame
 from pyparsing import White
 from .constants import COLS, WHITE, BLACK, BROWN, SQUARE_SIZE, ROWS
