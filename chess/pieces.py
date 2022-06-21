@@ -11,9 +11,9 @@ class Pawn:
         self.y = 0
         self.unmoved = True
         if self.color == WHITE:
-            pic = pygame.image.load('Images\white_pawn.png').convert_alpha()
+            pic = pygame.image.load('Images/white_pawn.png').convert_alpha()
         else:
-            pic = pygame.image.load('Images\\black_pawn.png').convert_alpha()
+            pic = pygame.image.load('Images/black_pawn.png').convert_alpha()
         self.pic = pygame.transform.scale(pic, (SQUARE_SIZE, SQUARE_SIZE))
         self.calc_pos()
         self.block = pygame.Rect(self.x, self.y, SQUARE_SIZE, SQUARE_SIZE)
@@ -45,9 +45,9 @@ class Rook:
         self.y = 0
         self.unmoved = True
         if self.color == WHITE:
-            pic = pygame.image.load('Images\white_rook.png').convert_alpha()
+            pic = pygame.image.load('Images/white_rook.png').convert_alpha()
         else:
-            pic = pygame.image.load('Images\\black_rook.png').convert_alpha()
+            pic = pygame.image.load('Images/black_rook.png').convert_alpha()
         self.pic = pygame.transform.scale(pic, (SQUARE_SIZE, SQUARE_SIZE))
         self.calc_pos()
         self.block = pygame.Rect(self.x, self.y, SQUARE_SIZE, SQUARE_SIZE)
@@ -75,9 +75,9 @@ class Bishop:
         self.x = 0
         self.y = 0
         if self.color == WHITE:
-            pic = pygame.image.load('Images\white_bishop.png').convert_alpha()
+            pic = pygame.image.load('Images/white_bishop.png').convert_alpha()
         else:
-            pic = pygame.image.load('Images\\black_bishop.png').convert_alpha()
+            pic = pygame.image.load('Images/black_bishop.png').convert_alpha()
         self.pic = pygame.transform.scale(pic, (SQUARE_SIZE, SQUARE_SIZE))
         self.calc_pos()
         self.block = pygame.Rect(self.x, self.y, SQUARE_SIZE, SQUARE_SIZE)
@@ -105,9 +105,9 @@ class Knight:
         self.y = 0
         self.unmoved = True
         if self.color == WHITE:
-            pic = pygame.image.load('Images\white_knight.png').convert_alpha()
+            pic = pygame.image.load('Images/white_knight.png').convert_alpha()
         else:
-            pic = pygame.image.load('Images\\black_knight.png').convert_alpha()
+            pic = pygame.image.load('Images/black_knight.png').convert_alpha()
         self.pic = pygame.transform.scale(pic, (SQUARE_SIZE, SQUARE_SIZE))
         self.calc_pos()
         self.block = pygame.Rect(self.x, self.y, SQUARE_SIZE, SQUARE_SIZE)
@@ -135,9 +135,9 @@ class King:
         self.x = 0
         self.y = 0
         if self.color == WHITE:
-            pic = pygame.image.load('Images\white_king.png').convert_alpha()
+            pic = pygame.image.load('Images/white_king.png').convert_alpha()
         else:
-            pic = pygame.image.load('Images\\black_king.png').convert_alpha()
+            pic = pygame.image.load('Images/black_king.png').convert_alpha()
         self.pic = pygame.transform.scale(pic, (SQUARE_SIZE, SQUARE_SIZE))
         self.calc_pos()
         self.block = pygame.Rect(self.x, self.y, SQUARE_SIZE, SQUARE_SIZE)
@@ -164,9 +164,9 @@ class Queen:
         self.x = 0
         self.y = 0
         if self.color == WHITE:
-            pic = pygame.image.load('Images\white_queen.png').convert_alpha()
+            pic = pygame.image.load('Images/white_queen.png').convert_alpha()
         else:
-            pic = pygame.image.load('Images\\black_queen.png').convert_alpha()
+            pic = pygame.image.load('Images/black_queen.png').convert_alpha()
         self.pic = pygame.transform.scale(pic, (SQUARE_SIZE, SQUARE_SIZE))
         self.calc_pos()
         self.block = pygame.Rect(self.x, self.y, SQUARE_SIZE, SQUARE_SIZE)

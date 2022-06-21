@@ -250,7 +250,7 @@ class Game:
         else:
             return False
  
-
+    # isn't finnished. 
     def check_check_mate(self, color):
         '''checks if there is a check mate i.e. the game is over'''
         king = self.get_king(color)
@@ -278,7 +278,7 @@ class Game:
                             break
             print(number_of,number_of_in_danger)
             
-            if number_of == number_of_in_danger:
+            if number_of == number_of_in_danger == 1:
                 return False
         return True
 
