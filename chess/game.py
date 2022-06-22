@@ -22,6 +22,8 @@ class Game:
     def reset(self):
         '''Resets the game'''
         self._init()
+        print('reseting')
+        self.update()
     
     def remove(self,piece):
         '''Removes piece from board'''
@@ -330,8 +332,83 @@ class Game:
             typo = type(piece).__name__
             if typo == 'King':
                 return piece
+    
+    def get_copy_at_pos(self, piece, pos):
+        color = piece.color
+        r, c = pos
+        typo = type(piece).__name__
+        if typo == 'Pawn':
+            return Pawn(r,c,color)
+        elif typo == 'Rook':
+            return Rook(r,c,color)
+        elif typo == 'Knight':
+            return Knight(r,c,color)
+        elif typo == 'Bishop':
+            return Bishop(r,c,color)
+        elif typo == 'Queen':
+            return Queen(r,c,color)
+        elif typo == 'King':
+            return King(r,c,color)
+        else:
+            return None
+    #ikke færdig
+    def get_line_between(self, piece1, piece2):
+        lst = []
+        direction = ''
+        piece1_type = type(piece1).__name__
+        piece1_possible_next_pos = self.possible_next_pos(piece1)
+        peice2_pos = (piece2.row, piece2.col)
+        if not(peice2_pos in piece1_possible_next_pos):
+            return lst
+        if piece1_type == 'Queen':
+            pass
+        elif piece1_type == 'Rook':
+            if piece1.row == piece2.row:
+                if piece1.col < piece2.col:
+                    direction = 'east'
+                if piece1.col > piece2.col:
+                    direction = 'west'
+            if piece1.col == piece2.col:
+                if piece1.row < piece2.row:
+                    direction = 'south'
+                if piece1.row > piece2.row:
+                    direction = 'north'
+            print(direction)
+            if direction == 'north':
+                for pos in piece1_possible_next_pos:
+                    if pos[0]<piece1.row:
+                        if pos[1] == piece2.col and pos[0]>piece2.row:
+                            lst.append(pos)
+                return lst
+            if direction == 'south':
+                for pos in piece1_possible_next_pos:
+                    if pos[0]>piece1.row:
+                        if pos[1] == piece2.col and pos[0] < piece2.row:
+                            lst.append(pos)
+                return lst
+            if direction == 'east':
+                for pos in piece1_possible_next_pos:
+                    if pos[1]>piece1.col:
+                        if pos[0] == piece2.row and pos[1]< piece2.col:
+                            lst.append(pos)
+                return lst
+            if direction == 'west':
+                for pos in piece1_possible_next_pos:
+                    if pos[1]<piece1.col:
+                        if pos[0] == piece2.row and pos[1] > piece2.col:
+                            lst.append(pos)
+                return lst
+
+
+        elif piece1_type == 'Bishop':
+            pass
+        else:
+            return lst
         
+
+
     def select(self, pos):
+        print(self.turn)
         r,c = pos
         if self.selected == None:
             piece = self.board.get_piece(r,c)
@@ -347,8 +424,12 @@ class Game:
                 self.selected = None
                 if self.turn == WHITE:
                     self.turn = BLACK
+                    if self.check_check_mate(self.turn):#other player has won the game
+                        self.reset()
                 else:
                     self.turn = WHITE
+                    if self.check_check_mate(self.turn):#other player has won the game
+                        self.reset()
 
 
     

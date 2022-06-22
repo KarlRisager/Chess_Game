@@ -12,3 +12,14 @@ if choice_made:
         game.move(piece, row, col)
     print(game.check_check_mate(BLACK))
     choice_made = False
+
+                if piece1.row == piece2.row:
+                    if direction == 'east':
+                        pass
+                    if direction == 'west':
+                        pass
+                if piece1.col == piece2.col:
+                    if direction == 'north':
+                        pass
+                    if direction == 'south':
+                        pass
