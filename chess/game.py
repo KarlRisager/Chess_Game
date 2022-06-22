@@ -331,6 +331,25 @@ class Game:
             if typo == 'King':
                 return piece
         
+    def select(self, pos):
+        r,c = pos
+        if self.selected == None:
+            piece = self.board.get_piece(r,c)
+            if piece != None and piece.color == self.turn:
+                self.selected = piece
+        if self.selected != None:
+            valid_moves = self.get_valid_moves(self.selected)
+            piece_row = self.selected.row
+            piece_col = self.selected.col
+            move = (r-piece_row,c-piece_col)
+            if move in valid_moves:
+                self.move(self.selected,r,c)
+                self.selected = None
+                if self.turn == WHITE:
+                    self.turn = BLACK
+                else:
+                    self.turn = WHITE
+
 
     
 
