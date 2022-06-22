@@ -255,11 +255,18 @@ class Game:
     def check_check_mate(self, color):
         '''checks if there is a check mate i.e. the game is over'''
         king = self.get_king(color)
+        if color == BLACK:
+            print('Black king at (%i,%i)'%(king.row, king.col))
+        elif color == WHITE:
+            print('White king at (%i,%i)'%(king.row, king.col))
         possible_king_pos = self.possible_next_pos(king)
         check_mate = []
         for pos in possible_king_pos:
             check_mate.append(self.check_check(color, pos))
+        if True in check_mate:#maybe remove
+            print('check')
         if False in check_mate or len(check_mate) == 0:
+            print('King can move')
             return False
         else:
             if color == WHITE:
@@ -270,11 +277,25 @@ class Game:
             deffensive_pieces = self.get_pieces(color)
             number_of = 0
             number_of_in_danger =0
+            print('king can not move')
             for piece in offensive_pieces:
+                line = []
                 if self.is_danger_to2(piece, king):
+                    print('piece at (%i,%i) is danger to king'%(piece.row,piece.col))
+                    line = self.get_line_between(piece, king)
                     number_of += 1
                     for def_piece in deffensive_pieces:
-                        if self.is_danger_to2(def_piece, piece):
+                        block = False
+                        if type(def_piece).__name__ != 'King':
+                            def_piece_possible_next_pos = self.possible_next_pos(def_piece)
+                            for pos_def_pos in def_piece_possible_next_pos:
+                                if pos_def_pos in line:
+                                    print('     But is blocked by piece at (%i,%i)'%(def_piece.row,def_piece.col))
+                                    block = True
+                                    break
+                        if self.is_danger_to2(def_piece, piece) or block:
+                            if self.is_danger_to2(def_piece,piece):
+                                print('     But it is threatened by piece at (%i,%i)'%(def_piece.row,def_piece.col))
                             number_of_in_danger += 1
                             break
 
@@ -549,6 +570,7 @@ class Game:
             piece = self.board.get_piece(r,c)
             if piece != None and piece.color == self.turn:
                 self.selected = piece
+                print('piece at (%i,%i) has be choosen'%(piece.row,piece.col))
         if self.selected != None:
             valid_moves = self.get_valid_moves(self.selected)
             piece_row = self.selected.row
@@ -556,15 +578,26 @@ class Game:
             move = (r-piece_row,c-piece_col)
             if move in valid_moves:
                 self.move(self.selected,r,c)
+                print('piece has been moved to (%i,%i)'%(r,c))
                 self.selected = None
                 if self.turn == WHITE:
+                    print('it is blacks turn')
                     self.turn = BLACK
-                    if self.check_check_mate(self.turn):#other player has won the game
-                        self.reset()
+                    print('Has black lost?')
+                    lost = self.check_check_mate(self.turn)
+                    print(lost)
+                    if lost:#other player has won the game
+                        #self.reset()
+                        pass
                 else:
+                    print('it is whites turn')
                     self.turn = WHITE
-                    if self.check_check_mate(self.turn):#other player has won the game
-                        self.reset()
+                    print('Has White lost?')
+                    lost = self.check_check_mate(self.turn)
+                    print(lost)
+                    if lost:#other player has won the game
+                        #self.reset()
+                        pass
 
 
 
