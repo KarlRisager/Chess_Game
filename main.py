@@ -21,7 +21,7 @@ def main():
     game = Game(WIN)
     choice_made = False
     r, c = -1,-1
-    piece = game.board.pieces[16]
+    piece = game.board.pieces[30]
     piece2 = game.board.pieces[31]
     while run:
         clock.tick(FPS)
@@ -33,7 +33,7 @@ def main():
                 pos = pygame.mouse.get_pos()
                 row, col = get_pos_from_mouse(pos)
                 game.select((row,col))
-                print(game.get_line_between(piece, piece2))
+
                 
         game.update()
 

@@ -22,7 +22,6 @@ class Game:
     def reset(self):
         '''Resets the game'''
         self._init()
-        print('reseting')
         self.update()
     
     def remove(self,piece):
@@ -278,7 +277,7 @@ class Game:
                         if self.is_danger_to2(def_piece, piece):
                             number_of_in_danger += 1
                             break
-            print(number_of,number_of_in_danger)
+
             
             if number_of == number_of_in_danger == 1:
                 return False
@@ -351,6 +350,24 @@ class Game:
             return King(r,c,color)
         else:
             return None
+    
+    def inverse_col(self, col):
+        if col == 0:
+            return 7
+        if col == 1:
+            return 6
+        if col == 2:
+            return 5
+        if col == 3:
+            return 4
+        if col == 4:
+            return 3
+        if col == 5:
+            return 2
+        if col == 6:
+            return 1
+        if col == 7:
+            return 0
     #ikke færdig
     def get_line_between(self, piece1, piece2):
         lst = []
@@ -361,7 +378,86 @@ class Game:
         if not(peice2_pos in piece1_possible_next_pos):
             return lst
         if piece1_type == 'Queen':
-            pass
+            piece1_sum = piece1.row+piece1.col
+            piece2_sum = piece2.row+piece2.col
+            piece1_wierd_sum = piece1.row + self.inverse_col(piece1.col)
+            piece2_wierd_sum = piece2.row + self.inverse_col(piece2.col)
+            if piece1_sum == piece2_sum:
+                if piece1.row < piece2.row:
+                    r = piece1.row + 1
+                    c = piece1.col - 1
+                    while r < piece2.row and c > piece2.col:
+                        if (r,c) in piece1_possible_next_pos:
+                            lst.append((r,c))
+                        r += 1
+                        c -= 1
+                    return lst
+                if piece1.row > piece2.row:
+                    r = piece1.row - 1
+                    c = piece1.col + 1
+                    while r > piece2.row and c < piece2.col:
+                        if (r,c) in piece1_possible_next_pos:
+                            lst.append((r,c))
+                        r -= 1
+                        c += 1
+                    return lst
+            elif piece1_wierd_sum == piece2_wierd_sum:
+                if piece1.row < piece2.row:
+                    r = piece1.row + 1
+                    c = piece1.col + 1
+                    while r < piece2.row and c < piece2.col:
+                        if (r,c) in piece1_possible_next_pos:
+                            lst.append((r,c))
+                        r += 1
+                        c += 1
+                    return lst
+                if piece1.row > piece2.row:
+                    r = piece1.row - 1
+                    c = piece1.col - 1
+                    while r > piece2.row and c > piece2.col:
+                        if (r,c) in piece1_possible_next_pos:
+                            lst.append((r,c))
+                        r -= 1
+                        c -= 1
+                    return lst
+            else:
+                if piece1.row == piece2.row:
+                    if piece1.col < piece2.col:
+                        direction = 'east'
+                    if piece1.col > piece2.col:
+                        direction = 'west'
+                if piece1.col == piece2.col:
+                    if piece1.row < piece2.row:
+                        direction = 'south'
+                    if piece1.row > piece2.row:
+                        direction = 'north'
+                if direction == 'north':
+                    for pos in piece1_possible_next_pos:
+                        if pos[0]<piece1.row:
+                            if pos[1] == piece2.col and pos[0]>piece2.row:
+                                lst.append(pos)
+                    return lst
+                if direction == 'south':
+                    for pos in piece1_possible_next_pos:
+                        if pos[0]>piece1.row:
+                            if pos[1] == piece2.col and pos[0] < piece2.row:
+                                lst.append(pos)
+                    return lst
+                if direction == 'east':
+                    for pos in piece1_possible_next_pos:
+                        if pos[1]>piece1.col:
+                            if pos[0] == piece2.row and pos[1]< piece2.col:
+                                lst.append(pos)
+                    return lst
+                if direction == 'west':
+                    for pos in piece1_possible_next_pos:
+                        if pos[1]<piece1.col:
+                            if pos[0] == piece2.row and pos[1] > piece2.col:
+                                lst.append(pos)
+                    return lst
+            return lst
+            
+
         elif piece1_type == 'Rook':
             if piece1.row == piece2.row:
                 if piece1.col < piece2.col:
@@ -373,7 +469,6 @@ class Game:
                     direction = 'south'
                 if piece1.row > piece2.row:
                     direction = 'north'
-            print(direction)
             if direction == 'north':
                 for pos in piece1_possible_next_pos:
                     if pos[0]<piece1.row:
@@ -401,14 +496,54 @@ class Game:
 
 
         elif piece1_type == 'Bishop':
-            pass
+            piece1_sum = piece1.row+piece1.col
+            piece2_sum = piece2.row+piece2.col
+            piece1_wierd_sum = piece1.row + self.inverse_col(piece1.col)
+            piece2_wierd_sum = piece2.row + self.inverse_col(piece2.col)
+            if piece1_sum == piece2_sum:
+                if piece1.row < piece2.row:
+                    r = piece1.row + 1
+                    c = piece1.col - 1
+                    while r < piece2.row and c > piece2.col:
+                        if (r,c) in piece1_possible_next_pos:
+                            lst.append((r,c))
+                        r += 1
+                        c -= 1
+                    return lst
+                if piece1.row > piece2.row:
+                    r = piece1.row - 1
+                    c = piece1.col + 1
+                    while r > piece2.row and c < piece2.col:
+                        if (r,c) in piece1_possible_next_pos:
+                            lst.append((r,c))
+                        r -= 1
+                        c += 1
+                    return lst
+            if piece1_wierd_sum == piece2_wierd_sum:
+                if piece1.row < piece2.row:
+                    r = piece1.row + 1
+                    c = piece1.col + 1
+                    while r < piece2.row and c < piece2.col:
+                        if (r,c) in piece1_possible_next_pos:
+                            lst.append((r,c))
+                        r += 1
+                        c += 1
+                    return lst
+                if piece1.row > piece2.row:
+                    r = piece1.row - 1
+                    c = piece1.col - 1
+                    while r > piece2.row and c > piece2.col:
+                        if (r,c) in piece1_possible_next_pos:
+                            lst.append((r,c))
+                        r -= 1
+                        c -= 1
+                    return lst
         else:
             return lst
         
 
 
     def select(self, pos):
-        print(self.turn)
         r,c = pos
         if self.selected == None:
             piece = self.board.get_piece(r,c)
@@ -430,6 +565,7 @@ class Game:
                     self.turn = WHITE
                     if self.check_check_mate(self.turn):#other player has won the game
                         self.reset()
+
 
 
     
