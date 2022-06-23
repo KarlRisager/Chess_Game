@@ -822,7 +822,7 @@ class Game:
                 piece_at_pos = self.board.get_piece(row,col)
                 if piece_at_pos != None and piece_at_pos.color == piece.color:
                     pieces_in_line.append(piece_at_pos)
-            if piece_pos == king_pos and (r,c) in line:
+            if piece_pos == king_pos and ((r,c) in line or (r,c) in self.possible_next_pos(op_piece)):
                 if (r,c) != op_piece_pos:
                     print('     But the king can not move into check')
                     return True
@@ -833,7 +833,11 @@ class Game:
             elif len(line) != 0 and len(pieces_in_line) == 0  and (r,c) not in line:
                 if piece_pos != king_pos:
                     r1,r2 = op_piece_pos
-                    print('     But move does not block attack on King from (%i,%i)'%(r1,r2))
+                    print('     But move does not block or deffend attack on King from (%i,%i)'%(r1,r2))
+                    return True
+            elif len(line) == 0 and self.is_danger_to2(op_piece, king) and (r,c)!=op_piece_pos:
+                if piece_pos!=king_pos:
+                    print('     But move doesn\'t deffend king')
                     return True
         return False
                 
@@ -870,7 +874,7 @@ class Game:
                     lost = self.check_check_mate(self.turn)
                     print('Has black lost: %r'%lost)
                     if lost:#other player has won the game
-                        #self.reset()
+                        self.reset()
                         pass
                 else:
                     print('it is whites turn')
@@ -879,7 +883,7 @@ class Game:
                     lost = self.check_check_mate(self.turn)
                     print('Has white lost: %r'%lost)
                     if lost:#other player has won the game
-                        #self.reset()
+                        self.reset()
                         pass
                 print('--------------------')
             else:
