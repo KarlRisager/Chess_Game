@@ -1,3 +1,4 @@
+from string import whitespace
 import pygame
 
 from chess.pieces import Pawn, Rook, Bishop, Knight, King, Queen
@@ -26,8 +27,9 @@ class Game:
     
     def remove(self,piece):
         '''Removes piece from board'''
+        self.board.dead_pieces.append(piece)
         self.board.pieces.remove(piece)
-    
+
     def move(self, piece, row, col):
         ''''Moves piece to position (row,col)'''
         color = piece.color
@@ -392,6 +394,235 @@ class Game:
             return 1
         if col == 7:
             return 0
+    
+    def on_board(self,pos):
+        r,c = pos
+        if r>0 and r<(ROWS-1) and c>0 and c<(COLS-1):
+            return True
+        else:
+            return False
+
+
+    def get_line_ignoring_pieces(self,piece1, piece2):
+        lst = []
+        direction = ''
+        piece1_type = type(piece1).__name__
+        peice2_pos = (piece2.row, piece2.col)
+        if piece1_type == 'Queen':
+            pos_lst = []
+            for r in range(ROWS):
+                if r != piece1.row:
+                    pos_lst.append((r,piece1.col))
+            for c in range(COLS):
+                if c != piece1.col:
+                    pos_lst.append((piece1.row,c))
+            for k in range(ROWS):
+                pos_SE = (piece1.row+k, piece1.col+k)
+                if self.on_board(pos_SE):
+                    pos_lst.append(pos_SE)
+                pos_NW = (piece1.row-k,piece1.col-k)
+                if self.on_board(pos_NW):
+                    pos_lst.append(pos_NW)
+                pos_NE = (piece1.row-k,piece1.col+k)
+                if self.on_board(pos_NE):
+                    pos_lst.append(pos_NE)
+                pos_SW = (piece1.row+k,piece1.col-k)
+                if self.on_board(pos_SW):
+                    pos_lst.append(pos_SW)
+            
+            piece1_sum = piece1.row+piece1.col
+            piece2_sum = piece2.row+piece2.col
+            piece1_wierd_sum = piece1.row + self.inverse_col(piece1.col)
+            piece2_wierd_sum = piece2.row + self.inverse_col(piece2.col)
+
+            if piece1.row == piece2.row:
+                    if piece1.col < piece2.col:
+                        direction = 'east'
+                    if piece1.col > piece2.col:
+                        direction = 'west'
+            if piece1.col == piece2.col:
+                    if piece1.row < piece2.row:
+                        direction = 'south'
+                    if piece1.row > piece2.row:
+                        direction = 'north'
+            if direction == 'north':
+                    for pos in pos_lst:
+                        if pos[0]<piece1.row:
+                            if pos[1] == piece2.col and pos[0]>piece2.row:
+                                lst.append(pos)
+                    return lst
+            elif direction == 'south':
+                    for pos in pos_lst:
+                        if pos[0]>piece1.row:
+                            if pos[1] == piece2.col and pos[0] < piece2.row:
+                                lst.append(pos)
+                    return lst
+            elif direction == 'east':
+                    for pos in pos_lst:
+                        if pos[1]>piece1.col:
+                            if pos[0] == piece2.row and pos[1]< piece2.col:
+                                lst.append(pos)
+                    return lst
+            elif direction == 'west':
+                    for pos in pos_lst:
+                        if pos[1]<piece1.col:
+                            if pos[0] == piece2.row and pos[1] > piece2.col:
+                                lst.append(pos)
+                    return lst
+            
+            elif piece1_sum == piece2_sum:
+                if piece1.row < piece2.row:
+                    r = piece1.row + 1
+                    c = piece1.col - 1
+                    while r < piece2.row and c > piece2.col:
+                        if (r,c) in pos_lst:
+                            lst.append((r,c))
+                        r += 1
+                        c -= 1
+                    return lst
+                if piece1.row > piece2.row:
+                    r = piece1.row - 1
+                    c = piece1.col + 1
+                    while r > piece2.row and c < piece2.col:
+                        if (r,c) in pos_lst:
+                            lst.append((r,c))
+                        r -= 1
+                        c += 1
+                    return lst
+            elif piece1_wierd_sum == piece2_wierd_sum:
+                if piece1.row < piece2.row:
+                    r = piece1.row + 1
+                    c = piece1.col + 1
+                    while r < piece2.row and c < piece2.col:
+                        if (r,c) in pos_lst:
+                            lst.append((r,c))
+                        r += 1
+                        c += 1
+                    return lst
+                if piece1.row > piece2.row:
+                    r = piece1.row - 1
+                    c = piece1.col - 1
+                    while r > piece2.row and c > piece2.col:
+                        if (r,c) in pos_lst:
+                            lst.append((r,c))
+                        r -= 1
+                        c -= 1
+                    return lst
+            else:
+                return lst
+
+        elif piece1_type == 'Rook':
+            pos_lst = []
+            for r in range(ROWS):
+                if r != piece1.row:
+                    pos_lst.append((r,piece1.col))
+            for c in range(COLS):
+                if c != piece1.col:
+                    pos_lst.append((piece1.row,c))
+
+            if piece1.row == piece2.row:
+                    if piece1.col < piece2.col:
+                        direction = 'east'
+                    if piece1.col > piece2.col:
+                        direction = 'west'
+            if piece1.col == piece2.col:
+                    if piece1.row < piece2.row:
+                        direction = 'south'
+                    if piece1.row > piece2.row:
+                        direction = 'north'
+            else:
+                return lst
+            if direction == 'north':
+                    for pos in pos_lst:
+                        if pos[0]<piece1.row:
+                            if pos[1] == piece2.col and pos[0]>piece2.row:
+                                lst.append(pos)
+                    return lst
+            if direction == 'south':
+                    for pos in pos_lst:
+                        if pos[0]>piece1.row:
+                            if pos[1] == piece2.col and pos[0] < piece2.row:
+                                lst.append(pos)
+                    return lst
+            if direction == 'east':
+                    for pos in pos_lst:
+                        if pos[1]>piece1.col:
+                            if pos[0] == piece2.row and pos[1]< piece2.col:
+                                lst.append(pos)
+                    return lst
+            if direction == 'west':
+                    for pos in pos_lst:
+                        if pos[1]<piece1.col:
+                            if pos[0] == piece2.row and pos[1] > piece2.col:
+                                lst.append(pos)
+                    return lst
+            return lst
+                
+        elif piece1_type == 'Bishop':
+            pos_lst = []
+            for k in range(ROWS):
+                pos_SE = (piece1.row+k, piece1.col+k)
+                if self.on_board(pos_SE):
+                    pos_lst.append(pos_SE)
+                pos_NW = (piece1.row-k,piece1.col-k)
+                if self.on_board(pos_NW):
+                    pos_lst.append(pos_NW)
+                pos_NE = (piece1.row-k,piece1.col+k)
+                if self.on_board(pos_NE):
+                    pos_lst.append(pos_NE)
+                pos_SW = (piece1.row+k,piece1.col-k)
+                if self.on_board(pos_SW):
+                    pos_lst.append(pos_SW)
+            
+            piece1_sum = piece1.row+piece1.col
+            piece2_sum = piece2.row+piece2.col
+            piece1_wierd_sum = piece1.row + self.inverse_col(piece1.col)
+            piece2_wierd_sum = piece2.row + self.inverse_col(piece2.col)
+            if piece1_sum == piece2_sum:
+                if piece1.row < piece2.row:
+                    r = piece1.row + 1
+                    c = piece1.col - 1
+                    while r < piece2.row and c > piece2.col:
+                        if (r,c) in pos_lst:
+                            lst.append((r,c))
+                        r += 1
+                        c -= 1
+                    return lst
+                if piece1.row > piece2.row:
+                    r = piece1.row - 1
+                    c = piece1.col + 1
+                    while r > piece2.row and c < piece2.col:
+                        if (r,c) in pos_lst:
+                            lst.append((r,c))
+                        r -= 1
+                        c += 1
+                    return lst
+            elif piece1_wierd_sum == piece2_wierd_sum:
+                if piece1.row < piece2.row:
+                    r = piece1.row + 1
+                    c = piece1.col + 1
+                    while r < piece2.row and c < piece2.col:
+                        if (r,c) in pos_lst:
+                            lst.append((r,c))
+                        r += 1
+                        c += 1
+                    return lst
+                if piece1.row > piece2.row:
+                    r = piece1.row - 1
+                    c = piece1.col - 1
+                    while r > piece2.row and c > piece2.col:
+                        if (r,c) in pos_lst:
+                            lst.append((r,c))
+                        r -= 1
+                        c -= 1
+                    return lst
+            return lst
+        
+        return lst
+
+            
+
+
 
     def get_line_between(self, piece1, piece2):
         lst = []
@@ -564,19 +795,54 @@ class Game:
                     return lst
         else:
             return lst
-        
+    #not quite done
     def results_in_check(self, piece, r, c):
-        pos = (r,c)
-        copy_of_pieces = self.board.pieces
-        self.move(piece, r, c)
-        if self.check_check(self.turn, None):
-            print('Move results in check')
-            self.board.pieces = copy_of_pieces
-            return True
-        else:
-            print('Move doesn\'t results in check')
-            self.board.pieces = copy_of_pieces
-            return False
+        piece_pos = (piece.row, piece.col)
+        king = self.get_king(piece.color)
+        king_pos = (king.row, king.col)
+        if piece_pos == king_pos:
+            print('piece is king')
+        print('king at: (%i,%i)'%(king.row,king.col))
+        op = BLACK
+        if piece.color == BLACK:
+            op = WHITE
+        op_pieces = self.get_pieces(op)
+        print('op is')
+        print(op)
+        for op_piece in op_pieces:
+            line = self.get_line_ignoring_pieces(op_piece, king)
+            op_piece_pos = (op_piece.row, op_piece.col)
+            if len(line)>0:
+                print('op_piece at (%i,%i). Line is'%(op_piece.row,op_piece.col))
+                print(line)
+                print('trying to move to (%i,%i)'%(r,c))
+            pieces_in_line = []
+            for pos in line:
+                row, col = pos
+                piece_at_pos = self.board.get_piece(row,col)
+                if piece_at_pos != None and piece_at_pos.color == piece.color:
+                    pieces_in_line.append(piece_at_pos)
+            if piece_pos == king_pos and (r,c) in line:
+                if (r,c) != op_piece_pos:
+                    print('     But the king can not move into check')
+                    return True
+            elif piece_pos in line and not((r,c) in line) and len(pieces_in_line) < 2:
+                if (r,c) != op_piece_pos:
+                    print('     But piece is pinned')
+                    return True
+            elif len(line) != 0 and len(pieces_in_line) == 0  and (r,c) not in line:
+                if piece_pos != king_pos:
+                    r1,r2 = op_piece_pos
+                    print('     But move does not block attack on King from (%i,%i)'%(r1,r2))
+                    return True
+        return False
+                
+                
+
+
+    def results_in_kill(self, piece, move):
+        pass
+
 
     def select(self, pos):
         r,c = pos
@@ -586,38 +852,38 @@ class Game:
                 self.selected = piece
                 print('--------------------')
                 print('piece at (%i,%i) has be choosen'%(piece.row,piece.col))
-        if self.selected != None:
+        elif self.selected != None:
+            print(pos)
             valid_moves = self.get_valid_moves(self.selected)
             piece_row = self.selected.row
             piece_col = self.selected.col
             move = (r-piece_row,c-piece_col)
-            if move in valid_moves:
-                if self.results_in_check(self.selected, r, c):
-                    print('ikke tilladt')
-                else:
-                    print('tilladt')
+            results_in_check = self.results_in_check(self.selected, r, c)
+            if move in valid_moves and not(results_in_check):
                 self.move(self.selected,r,c)
                 print('piece has been moved to (%i,%i)'%(r,c))
                 self.selected = None
                 if self.turn == WHITE:
                     print('it is blacks turn')
                     self.turn = BLACK
-                    print('Has black lost?')
+                    print('checking if black has lost')
                     lost = self.check_check_mate(self.turn)
-                    print(lost)
+                    print('Has black lost: %r'%lost)
                     if lost:#other player has won the game
                         #self.reset()
                         pass
                 else:
                     print('it is whites turn')
                     self.turn = WHITE
-                    print('Has White lost?')
+                    print('checking if white has lost')
                     lost = self.check_check_mate(self.turn)
-                    print(lost)
+                    print('Has white lost: %r'%lost)
                     if lost:#other player has won the game
                         #self.reset()
                         pass
                 print('--------------------')
+            else:
+                self.selected = None
 
 
 

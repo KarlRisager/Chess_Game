@@ -12,7 +12,7 @@ class Board:
         Bishop(0,2,BLACK), Bishop(0,5,BLACK), Bishop(7,2,WHITE), Bishop(7,5,WHITE),
         Knight(0,1,BLACK), Knight(0,6,BLACK), Knight(7,1,WHITE), Knight(7,6,WHITE),
         King(0,4,BLACK), King(7,4,WHITE), Queen(0,3,BLACK), Queen(7,3,WHITE)]
-        self.dead = []
+        self.dead_pieces = []
         self.selected_piece = None
         
     def draw_board(self, win):
