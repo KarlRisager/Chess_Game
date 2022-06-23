@@ -31,6 +31,9 @@ def main():
                 pos = pygame.mouse.get_pos()
                 row, col = get_pos_from_mouse(pos)
                 game.select((row,col))
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    game.unmove()
 
                 
         game.update()

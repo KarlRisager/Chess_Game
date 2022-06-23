@@ -19,6 +19,7 @@ class Game:
         self.selected = None
         self.board = Board()
         self.turn = WHITE
+        self.MoveLog = []
     
     def reset(self):
         '''Resets the game'''
@@ -32,12 +33,29 @@ class Game:
 
     def move(self, piece, row, col):
         ''''Moves piece to position (row,col)'''
+        MoveLogInstanse = [(piece, (piece.row, piece.col), (row, col))]
         color = piece.color
         piece_at_pos = self.board.get_piece(row,col)
         if piece_at_pos != None and piece_at_pos.color != color:
+            MoveLogInstanse.append((piece_at_pos, (piece_at_pos.row,piece_at_pos.col), (-1,-1)))
             self.remove(piece_at_pos)
+        self.MoveLog.append(MoveLogInstanse)
         self.board.move(piece, row, col)
         self.pawn_to_queen()
+    
+    def unmove(self):
+        if len(self.MoveLog)!=0:
+            last_moves = self.MoveLog.pop(len(self.MoveLog)-1)
+            for move in last_moves:
+                r, c = move[1]
+                if move[2] == (-1,-1):
+                    self.board.pieces.append(move[0])
+                self.move(move[0], r, c)
+            if self.turn == BLACK:
+                self.turn = WHITE
+            else:
+                self.turn = BLACK
+            #self.update()
     
     def get_pos_off_pieces(self, color):
         '''Returns a list of positions of pieces, that have the color color'''
@@ -216,7 +234,7 @@ class Game:
             lst.append(next_pos)
         lst.append((piece.row, piece.col))
         return lst
-
+    #remeber to add funtionality with unmove
     def pawn_to_queen(self):
         '''Makes all the pawns, that have reached the other side of the boead, queens'''
         for piece in self.board.pieces:
@@ -252,7 +270,37 @@ class Game:
             return True
         else:
             return False
- 
+    def check_mate(self,color):
+        pieces = self.get_pieces(color)
+        for piece in pieces:
+            pos_next_pos = self.possible_next_pos(piece)
+            for (r,c) in pos_next_pos:
+                self.move(piece, r, c)
+                if not(self.check_check(color, None)):
+                    if self.turn == WHITE:
+                        self.turn = BLACK
+                    else:
+                        self.turn = WHITE
+                    self.unmove()
+                    return False
+                self.unmove()
+        return True
+
+
+
+    def temp_check_check_mate(self, color):
+        check_mate = True
+        king = self.get_king(color)
+        check = self.check_check(color, None)
+        pieces = self.get_pieces(color)
+        for piece in pieces:
+            next_poses = self.possible_next_pos(piece)
+            for pos in next_poses:
+                if not(self.results_in_check(piece, pos[0], pos[1])):
+                    check_mate = False
+        return check_mate
+                
+
 
     def check_check_mate(self, color):
         '''checks if there is a check mate i.e. the game is over'''
@@ -265,6 +313,9 @@ class Game:
         possible_king_pos = self.possible_next_pos(king)
         check_mate = []
         for pos in possible_king_pos:
+            print('checking that following doesn\'t check')
+            print(pos)
+            print(self.check_check(color,pos))
             check_mate.append(self.check_check(color, pos))
         if True in check_mate:#maybe remove
             print('check')
@@ -299,7 +350,7 @@ class Game:
                                     block = True
                                     break
                         if self.is_danger_to2(def_piece, piece) or block:
-                            if self.is_danger_to2(def_piece,piece):
+                            if self.is_danger_to2(def_piece,piece) and not(self.results_in_check(def_piece,piece.row, piece.col)):
                                 print('     But it is threatened by piece at (%i,%i)'%(def_piece.row,def_piece.col))
                             number_of_in_danger += 1
                             break
@@ -800,22 +851,20 @@ class Game:
         piece_pos = (piece.row, piece.col)
         king = self.get_king(piece.color)
         king_pos = (king.row, king.col)
-        if piece_pos == king_pos:
-            print('piece is king')
-        print('king at: (%i,%i)'%(king.row,king.col))
+        #if piece_pos == king_pos:
+            #print('piece is king')
+        #print('king at: (%i,%i)'%(king.row,king.col))
         op = BLACK
         if piece.color == BLACK:
             op = WHITE
         op_pieces = self.get_pieces(op)
-        print('op is')
-        print(op)
         for op_piece in op_pieces:
             line = self.get_line_ignoring_pieces(op_piece, king)
             op_piece_pos = (op_piece.row, op_piece.col)
-            if len(line)>0:
-                print('op_piece at (%i,%i). Line is'%(op_piece.row,op_piece.col))
-                print(line)
-                print('trying to move to (%i,%i)'%(r,c))
+            #if len(line)>0:
+                #print('op_piece at (%i,%i). Line is'%(op_piece.row,op_piece.col))
+                #print(line)
+                #print('trying to move to (%i,%i)'%(r,c))
             pieces_in_line = []
             for pos in line:
                 row, col = pos
@@ -824,20 +873,20 @@ class Game:
                     pieces_in_line.append(piece_at_pos)
             if piece_pos == king_pos and ((r,c) in line or (r,c) in self.possible_next_pos(op_piece)):
                 if (r,c) != op_piece_pos:
-                    print('     But the king can not move into check')
+                    #print('     But the king can not move into check')
                     return True
             elif piece_pos in line and not((r,c) in line) and len(pieces_in_line) < 2:
                 if (r,c) != op_piece_pos:
-                    print('     But piece is pinned')
+                    #print('     But piece is pinned')
                     return True
             elif len(line) != 0 and len(pieces_in_line) == 0  and (r,c) not in line:
                 if piece_pos != king_pos:
-                    r1,r2 = op_piece_pos
-                    print('     But move does not block or deffend attack on King from (%i,%i)'%(r1,r2))
+                    r1,r2 = piece_pos
+                    #print('     But move does not block or deffend attack on King from (%i,%i)'%(r1,r2))
                     return True
             elif len(line) == 0 and self.is_danger_to2(op_piece, king) and (r,c)!=op_piece_pos:
                 if piece_pos!=king_pos:
-                    print('     But move doesn\'t deffend king')
+                    #print('     But move doesn\'t deffend king')
                     return True
         return False
                 
@@ -871,7 +920,7 @@ class Game:
                     print('it is blacks turn')
                     self.turn = BLACK
                     print('checking if black has lost')
-                    lost = self.check_check_mate(self.turn)
+                    lost = self.check_mate(self.turn)
                     print('Has black lost: %r'%lost)
                     if lost:#other player has won the game
                         self.reset()
@@ -880,7 +929,7 @@ class Game:
                     print('it is whites turn')
                     self.turn = WHITE
                     print('checking if white has lost')
-                    lost = self.check_check_mate(self.turn)
+                    lost = self.check_mate(self.turn)
                     print('Has white lost: %r'%lost)
                     if lost:#other player has won the game
                         self.reset()
