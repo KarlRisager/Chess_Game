@@ -19,10 +19,8 @@ def main():
     run = True
     clock = pygame.time.Clock()
     game = Game(WIN)
-    choice_made = False
-    r, c = -1,-1
-    piece = game.board.pieces[30]
-    piece2 = game.board.pieces[31]
+    piece = game.board.pieces[30]#only for testing
+    piece2 = game.board.pieces[31]#only for testing
     while run:
         clock.tick(FPS)
 

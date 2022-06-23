@@ -196,7 +196,7 @@ class Game:
             r = row + y
             c = col + x
             
-            if r > ROWS or r<0 or c > COLS or c<0:
+            if r > (ROWS -1) or r<0 or c > (COLS-1) or c<0:
                 valid_list.remove(move)
 
             if (r,c) in self.get_pos_off_pieces(color):
@@ -241,7 +241,7 @@ class Game:
             king_pos = (king.row, king.col)
         if color == WHITE:
             op = BLACK
-        else:
+        elif color == BLACK:
             op = WHITE
         op_pieces = self.get_pieces(op)
         for piece in op_pieces:
@@ -251,9 +251,10 @@ class Game:
         else:
             return False
  
-    # isn't finnished. 
+
     def check_check_mate(self, color):
         '''checks if there is a check mate i.e. the game is over'''
+        print('--------------------')
         king = self.get_king(color)
         if color == BLACK:
             print('Black king at (%i,%i)'%(king.row, king.col))
@@ -267,6 +268,7 @@ class Game:
             print('check')
         if False in check_mate or len(check_mate) == 0:
             print('King can move')
+            print('--------------------')
             return False
         else:
             if color == WHITE:
@@ -278,6 +280,7 @@ class Game:
             number_of = 0
             number_of_in_danger =0
             print('king can not move')
+            print('--------------------')
             for piece in offensive_pieces:
                 line = []
                 if self.is_danger_to2(piece, king):
@@ -389,7 +392,7 @@ class Game:
             return 1
         if col == 7:
             return 0
-    #ikke færdig
+
     def get_line_between(self, piece1, piece2):
         lst = []
         direction = ''
@@ -562,7 +565,18 @@ class Game:
         else:
             return lst
         
-
+    def results_in_check(self, piece, r, c):
+        pos = (r,c)
+        copy_of_pieces = self.board.pieces
+        self.move(piece, r, c)
+        if self.check_check(self.turn, None):
+            print('Move results in check')
+            self.board.pieces = copy_of_pieces
+            return True
+        else:
+            print('Move doesn\'t results in check')
+            self.board.pieces = copy_of_pieces
+            return False
 
     def select(self, pos):
         r,c = pos
@@ -570,6 +584,7 @@ class Game:
             piece = self.board.get_piece(r,c)
             if piece != None and piece.color == self.turn:
                 self.selected = piece
+                print('--------------------')
                 print('piece at (%i,%i) has be choosen'%(piece.row,piece.col))
         if self.selected != None:
             valid_moves = self.get_valid_moves(self.selected)
@@ -577,6 +592,10 @@ class Game:
             piece_col = self.selected.col
             move = (r-piece_row,c-piece_col)
             if move in valid_moves:
+                if self.results_in_check(self.selected, r, c):
+                    print('ikke tilladt')
+                else:
+                    print('tilladt')
                 self.move(self.selected,r,c)
                 print('piece has been moved to (%i,%i)'%(r,c))
                 self.selected = None
@@ -598,6 +617,7 @@ class Game:
                     if lost:#other player has won the game
                         #self.reset()
                         pass
+                print('--------------------')
 
 
 
