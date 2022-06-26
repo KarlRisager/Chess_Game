@@ -41,7 +41,16 @@ class Game:
             self.remove(piece_at_pos)
         self.MoveLog.append(MoveLogInstanse)
         self.board.move(piece, row, col)
-        self.pawn_to_queen()
+        typo = type(piece).__name__
+        if typo == 'Pawn' and piece.color == WHITE and piece.row == 0:
+            temp_piece = Queen(piece.row, piece.col, piece.color)
+            self.board.pieces.remove(piece)
+            self.board.pieces.append(temp_piece)
+        if typo == 'Pawn' and piece.color == BLACK and piece.row == 7:
+            temp_piece = Queen(piece.row, piece.col, piece.color)
+            self.board.pieces.remove(piece)
+            self.board.pieces.append(temp_piece)
+        #self.pawn_to_queen()
     
     def unmove(self):
         if len(self.MoveLog)!=0:
@@ -49,6 +58,10 @@ class Game:
             for move in last_moves:
                 r, c = move[1]
                 if move[2] == (-1,-1):
+                    self.board.pieces.append(move[0])
+                if not(move[0] in self.board.pieces):
+                    piece_at = self.board.get_piece(move[0].row, move[0].col)
+                    self.remove(piece_at)
                     self.board.pieces.append(move[0])
                 self.move(move[0], r, c)
             if self.turn == BLACK:
@@ -234,19 +247,6 @@ class Game:
             lst.append(next_pos)
         lst.append((piece.row, piece.col))
         return lst
-    #remeber to add funtionality with unmove
-    def pawn_to_queen(self):
-        '''Makes all the pawns, that have reached the other side of the boead, queens'''
-        for piece in self.board.pieces:
-            typo = type(piece).__name__
-            if typo == 'Pawn' and piece.color == WHITE and piece.row == 0:
-                temp_piece = Queen(piece.row, piece.col, piece.color)
-                self.board.pieces.remove(piece)
-                self.board.pieces.append(temp_piece)
-            if typo == 'Pawn' and piece.color == BLACK and piece.row == 7:
-                temp_piece = Queen(piece.row, piece.col, piece.color)
-                self.board.pieces.remove(piece)
-                self.board.pieces.append(temp_piece)
 
     
 

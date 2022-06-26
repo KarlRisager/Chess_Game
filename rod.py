@@ -23,3 +23,16 @@ if choice_made:
                         pass
                     if direction == 'south':
                         pass
+
+ #def pawn_to_queen(self):
+        '''Makes all the pawns, that have reached the other side of the boead, queens'''
+        for piece in self.board.pieces:
+            typo = type(piece).__name__
+            if typo == 'Pawn' and piece.color == WHITE and piece.row == 0:
+                temp_piece = Queen(piece.row, piece.col, piece.color)
+                self.board.pieces.remove(piece)
+                self.board.pieces.append(temp_piece)
+            if typo == 'Pawn' and piece.color == BLACK and piece.row == 7:
+                temp_piece = Queen(piece.row, piece.col, piece.color)
+                self.board.pieces.remove(piece)
+                self.board.pieces.append(temp_piece)
