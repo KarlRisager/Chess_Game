@@ -247,6 +247,13 @@ class Game:
             lst.append(next_pos)
         lst.append((piece.row, piece.col))
         return lst
+    def possible_next_pos_after_move(self, piece):
+        lst = []
+        for pos in self.get_valid_moves(piece):
+            r,c = pos
+            next_pos = (piece.row + r, piece.col + c)
+            lst.append(next_pos)
+        return lst
 
     
 
@@ -285,7 +292,24 @@ class Game:
                     return False
                 self.unmove()
         return True
-
+    
+    #not working properly yet
+    def stale_mate(self, color):
+        pieces = self.get_pieces(color)
+        for piece in pieces:
+            pos_next_pos = self.possible_next_pos_after_move(piece)
+            for (r,c) in pos_next_pos:
+                self.move(piece, r, c)
+                if not(self.check_check(color, None)):
+                    if self.turn == WHITE:
+                        self.turn = BLACK
+                    else:
+                        self.turn = WHITE
+                    self.unmove()
+                    return False
+                self.unmove()
+        print('stalemate')
+        return True
 
 
     def temp_check_check_mate(self, color):
@@ -921,19 +945,21 @@ class Game:
                     self.turn = BLACK
                     print('checking if black has lost')
                     lost = self.check_mate(self.turn)
+                    #stale = self.stale_mate(self.turn)
                     print('Has black lost: %r'%lost)
-                    if lost:#other player has won the game
+                    if lost:#other player has won the game or stalemate
                         self.reset()
-                        pass
+                        #pass
                 else:
                     print('it is whites turn')
                     self.turn = WHITE
                     print('checking if white has lost')
                     lost = self.check_mate(self.turn)
+                    #stale = self.stale_mate(self.turn)
                     print('Has white lost: %r'%lost)
-                    if lost:#other player has won the game
+                    if lost:#other player has won the game or stalemate
                         self.reset()
-                        pass
+                        #pass
                 print('--------------------')
             else:
                 self.selected = None
