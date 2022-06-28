@@ -26,16 +26,35 @@ class Game:
         self._init()
         self.update()
     
+    def change_turn(self):
+        if self.turn == WHITE:
+            self.turn = BLACK
+        else:
+            self.turn = WHITE
+
     def remove(self,piece):
         '''Removes piece from board'''
         self.board.dead_pieces.append(piece)
         self.board.pieces.remove(piece)
+
+    def reset_firstmove(self,color):
+        pieces = self.get_pieces(color)
+        for piece in pieces:
+            typo = type(piece).__name__
+            if typo == 'Pawn':
+                piece.firstmove = False
 
     def move(self, piece, row, col):
         ''''Moves piece to position (row,col)'''
         MoveLogInstanse = [(piece, (piece.row, piece.col), (row, col))]
         color = piece.color
         piece_at_pos = self.board.get_piece(row,col)
+        iep,iep_piece = self.is_enpassant(piece,row,col)
+        print(iep,iep_piece)
+        if iep:
+            print('En passant')
+            MoveLogInstanse.append((iep_piece, (iep_piece.row, iep_piece.col), (-1,-1)))
+            self.remove(iep_piece)
         if piece_at_pos != None and piece_at_pos.color != color:
             MoveLogInstanse.append((piece_at_pos, (piece_at_pos.row,piece_at_pos.col), (-1,-1)))
             self.remove(piece_at_pos)
@@ -82,6 +101,43 @@ class Game:
                 lst.append(piece)
         return lst
 
+    #to do
+    def can_castle(self, color, side):
+        pass
+    
+    #to do
+    def is_enpassant(self, piece, row, col):
+        r,c = (piece.row, piece.col)
+        print((row-r,col-c))
+        if piece.color == WHITE:
+            right = self.board.get_piece(r,c+1)
+            piece_at_right = self.board.get_piece(r-1,c+1)
+            left = self.board.get_piece(r,c-1)
+            piece_at_left = self.board.get_piece(r-1,c-1)
+            print(right)
+            print(type(right).__name__)
+            if type(right).__name__ == 'Pawn' and right.firstmove and piece_at_right == None:
+                if right.color == BLACK and (row-r,col-c) == (-1,1):
+                    return (True,right)
+            if type(left).__name__ == 'Pawn' and left.firstmove and piece_at_left == None:
+                if left.color == BLACK and (row-r,col-c) == (-1,-1):
+                    return  (True,left)
+        if piece.color == BLACK:
+            right = self.board.get_piece(r,c+1)
+            piece_at_right = self.board.get_piece(r+1,c+1)
+            left = self.board.get_piece(r,c-1)
+            piece_at_left = self.board.get_piece(r+1,c-1)
+            if type(right).__name__ == 'Pawn' and right.firstmove and piece_at_right == None:
+                if right.color == WHITE and (row-r,col-c) == (1,1):
+                    return (True,right)
+            if type(left).__name__ == 'Pawn' and left.firstmove and piece_at_left == None:
+                if left.color == WHITE and (row-r,col-c) == (1,-1):
+                    return (True, left)
+        return (False, None)
+    #to do
+    def en_peasant(self, piece, row, col):
+        pass
+
     def get_valid_moves(self, piece):
         '''Returns a list of moves, that are valid for piece'''
         color = piece.color
@@ -103,6 +159,17 @@ class Game:
                     valid_list.append((-1,-1))
                 if self.board.get_piece(row-1,col+1)!=None:
                     valid_list.append((-1,1))
+                #for en passant
+                right = self.board.get_piece(row,col+1)
+                piece_at_right = self.board.get_piece(row-1,col+1)
+                left = self.board.get_piece(row,col-1)
+                piece_at_left = self.board.get_piece(row-1,col-1)
+                if type(right).__name__ == 'Pawn' and right.firstmove and piece_at_right == None:
+                    if right.color == BLACK:
+                        valid_list.append((-1,1))
+                if type(left).__name__ == 'Pawn' and left.firstmove and piece_at_left == None:
+                    if left.color == BLACK:
+                        valid_list.append((-1,-1))
             if piece.color == BLACK:
                 if self.board.get_piece(row+1,col) == None:
                     valid_list.append((1,0))
@@ -112,6 +179,17 @@ class Game:
                     valid_list.append((1,-1))
                 if self.board.get_piece(row+1,col+1)!=None:
                     valid_list.append((1,1))
+                # for en passant
+                right = self.board.get_piece(row,col+1)
+                piece_at_right = self.board.get_piece(row+1,col+1)
+                left = self.board.get_piece(row,col-1)
+                piece_at_left = self.board.get_piece(row+1,col-1)
+                if type(right).__name__ == 'Pawn' and right.firstmove and piece_at_right == None:
+                    if right.color == WHITE:
+                        valid_list.append((1,1))
+                if type(left).__name__ == 'Pawn' and left.firstmove and piece_at_left == None:
+                    if left.color == WHITE:
+                        valid_list.append((1,-1))
                 
         elif typo == 'Rook':
 
@@ -274,6 +352,7 @@ class Game:
         else:
             return False
     def check_mate(self,color):
+        return False
         pieces = self.get_pieces(color)
         for piece in pieces:
             pos_next_pos = self.possible_next_pos(piece)
@@ -287,6 +366,7 @@ class Game:
     
     #not working properly yet
     def stale_mate(self, color):
+        return False
         pieces = self.get_pieces(color)
         for piece in pieces:
             pos_next_pos = self.possible_next_pos_after_move(piece)
@@ -931,6 +1011,7 @@ class Game:
                 if self.turn == WHITE:
                     print('it is blacks turn')
                     self.turn = BLACK
+                    self.reset_firstmove(BLACK)
                     print('checking if black has lost')
                     lost = self.check_mate(self.turn)
                     stale = self.stale_mate(self.turn)
@@ -940,6 +1021,7 @@ class Game:
                 else:
                     print('it is whites turn')
                     self.turn = WHITE
+                    self.reset_firstmove(WHITE)
                     print('checking if white has lost')
                     lost = self.check_mate(self.turn)
                     stale = self.stale_mate(self.turn)
