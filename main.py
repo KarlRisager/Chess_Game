@@ -34,7 +34,8 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     game.unmove()
-                    
+                    game.change_turn()
+
 
                 
         game.update()

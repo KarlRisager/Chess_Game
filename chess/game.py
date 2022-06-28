@@ -32,6 +32,10 @@ class Game:
         else:
             self.turn = WHITE
 
+    def op(self, color):
+        if color == WHITE:
+            return BLACK
+        return WHITE
     def remove(self,piece):
         '''Removes piece from board'''
         self.board.dead_pieces.append(piece)
@@ -101,21 +105,60 @@ class Game:
                 lst.append(piece)
         return lst
 
-    #to do
+    #to do doesn't check if rook is there and if move results in check
     def can_castle(self, color, side):
-        pass
+        if not(self.check_check(color,None)):
+            results_in_check = False
+            line_clear = True
+            line_in_danger = False
+            rook = None
+            king = self.get_king(color)
+            kr,kc = king.row,king.col
+            if color == WHITE:
+                if side == 'r':
+                    line = ((kr,kc+1),(kr,kc+2))
+                    for (r,c) in line:
+                        if self.board.get_piece(r,c) != None:
+                            line_clear = False
+                    rook = self.board.get_piece(7,7)
+                    line_in_danger = self.pos_in_danger_from(kr,kc+1) or self.pos_in_danger_from(kr,kc+2)
+                elif side == 'l':
+                    line = ((kr,kc-1),(kr,kc-2), (kr,kc-3))
+                    for (r,c) in line:
+                        if self.board.get_piece(r,c) != None:
+                            line_clear = False
+                    rook = self.board.get_piece(7,0)
+                    line_in_danger = self.pos_in_danger_from(kr,kc-1) or self.pos_in_danger_from(kr,kc-2) or self.pos_in_danger_from(kr,kc-3)
+                print(side)
+                if not(line_in_danger) and king.unmoved and rook.unmoved and line_clear:
+                    return True
+            if color == BLACK:
+                if side == 'r':
+                    line = ((kr,kc+1),(kr,kc+2))
+                    for (r,c) in line:
+                        if self.board.get_piece(r,c) != None:
+                            line_clear = False
+                    rook = self.board.get_piece(0,7)
+                    line_in_danger = self.pos_in_danger_from(kr,kc+1) or self.pos_in_danger_from(kr,kc+2)
+                elif side == 'l':
+                    line = ((kr,kc-1),(kr,kc-2), (kr,kc-3))
+                    for (r,c) in line:
+                        if self.board.get_piece(r,c) != None:
+                            line_clear = False
+                    rook = self.board.get_piece(0,0)
+                    line_in_danger = self.pos_in_danger_from(kr,kc-1) or self.pos_in_danger_from(kr,kc-2) or self.pos_in_danger_from(kr,kc-3)
+                print(side)
+                if not(line_in_danger) and king.unmoved and rook.unmoved and line_clear:
+                    return True
+        return False
     
-    #to do
     def is_enpassant(self, piece, row, col):
         r,c = (piece.row, piece.col)
-        print((row-r,col-c))
         if piece.color == WHITE:
             right = self.board.get_piece(r,c+1)
             piece_at_right = self.board.get_piece(r-1,c+1)
             left = self.board.get_piece(r,c-1)
             piece_at_left = self.board.get_piece(r-1,c-1)
-            print(right)
-            print(type(right).__name__)
             if type(right).__name__ == 'Pawn' and right.firstmove and piece_at_right == None:
                 if right.color == BLACK and (row-r,col-c) == (-1,1):
                     return (True,right)
@@ -134,6 +177,7 @@ class Game:
                 if left.color == WHITE and (row-r,col-c) == (1,-1):
                     return (True, left)
         return (False, None)
+
     #to do
     def en_peasant(self, piece, row, col):
         pass
@@ -340,10 +384,7 @@ class Game:
         if pos == None:
             king = self.get_king(color)
             king_pos = (king.row, king.col)
-        if color == WHITE:
-            op = BLACK
-        elif color == BLACK:
-            op = WHITE
+        op = self.op(color)
         op_pieces = self.get_pieces(op)
         for piece in op_pieces:
             lst.extend(self.possible_next_pos(piece))
@@ -352,7 +393,6 @@ class Game:
         else:
             return False
     def check_mate(self,color):
-        return False
         pieces = self.get_pieces(color)
         for piece in pieces:
             pos_next_pos = self.possible_next_pos(piece)
@@ -366,7 +406,6 @@ class Game:
     
     #not working properly yet
     def stale_mate(self, color):
-        return False
         pieces = self.get_pieces(color)
         for piece in pieces:
             pos_next_pos = self.possible_next_pos_after_move(piece)
@@ -380,79 +419,13 @@ class Game:
         return True
 
 
-    def temp_check_check_mate(self, color):
-        check_mate = True
-        king = self.get_king(color)
-        check = self.check_check(color, None)
-        pieces = self.get_pieces(color)
-        for piece in pieces:
-            next_poses = self.possible_next_pos(piece)
-            for pos in next_poses:
-                if not(self.results_in_check(piece, pos[0], pos[1])):
-                    check_mate = False
-        return check_mate
-                
+    def pos_in_danger_from(self,color,pos):
+        attacking_pieces = self.get_pieces(color)  
+        for piece in attacking_pieces:
+            if pos in self.possible_next_pos(piece):
+                return True
+        return False
 
-
-    def check_check_mate(self, color):
-        '''checks if there is a check mate i.e. the game is over'''
-        print('--------------------')
-        king = self.get_king(color)
-        if color == BLACK:
-            print('Black king at (%i,%i)'%(king.row, king.col))
-        elif color == WHITE:
-            print('White king at (%i,%i)'%(king.row, king.col))
-        possible_king_pos = self.possible_next_pos(king)
-        check_mate = []
-        for pos in possible_king_pos:
-            print('checking that following doesn\'t check')
-            print(pos)
-            print(self.check_check(color,pos))
-            check_mate.append(self.check_check(color, pos))
-        if True in check_mate:#maybe remove
-            print('check')
-        if False in check_mate or len(check_mate) == 0:
-            print('King can move')
-            print('--------------------')
-            return False
-        else:
-            if color == WHITE:
-                op = BLACK
-            else:
-                op = WHITE
-            offensive_pieces = self.get_pieces(op)
-            deffensive_pieces = self.get_pieces(color)
-            number_of = 0
-            number_of_in_danger =0
-            print('king can not move')
-            print('--------------------')
-            for piece in offensive_pieces:
-                line = []
-                if self.is_danger_to2(piece, king):
-                    print('piece at (%i,%i) is danger to king'%(piece.row,piece.col))
-                    line = self.get_line_between(piece, king)
-                    number_of += 1
-                    for def_piece in deffensive_pieces:
-                        block = False
-                        if type(def_piece).__name__ != 'King':
-                            def_piece_possible_next_pos = self.possible_next_pos(def_piece)
-                            for pos_def_pos in def_piece_possible_next_pos:
-                                if pos_def_pos in line:
-                                    print('     But is blocked by piece at (%i,%i)'%(def_piece.row,def_piece.col))
-                                    block = True
-                                    break
-                        if self.is_danger_to2(def_piece, piece) or block:
-                            if self.is_danger_to2(def_piece,piece) and not(self.results_in_check(def_piece,piece.row, piece.col)):
-                                print('     But it is threatened by piece at (%i,%i)'%(def_piece.row,def_piece.col))
-                            number_of_in_danger += 1
-                            break
-
-            
-            if number_of == number_of_in_danger == 1:
-                return False
-        return True
-
-        
     def is_danger_to(self, piece):
         '''Returns a list of pieces, that piece threatens'''
         possible_pos = self.possible_next_pos(piece)
