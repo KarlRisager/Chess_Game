@@ -51,10 +51,24 @@ class Game:
     def move(self, piece, row, col):
         ''''Moves piece to position (row,col)'''
         MoveLogInstanse = [(piece, (piece.row, piece.col), (row, col))]
+        castle = False
+        rook = None
+        rook_pos_after = (-2,-2)
         color = piece.color
         piece_at_pos = self.board.get_piece(row,col)
         iep,iep_piece = self.is_enpassant(piece,row,col)
-        print(iep,iep_piece)
+        typo = type(piece).__name__
+        if col == (piece.col+2):
+            rook = self.board.get_piece(row, 7)
+            rook_pos_after = (row,col-1)
+            castle = True
+        if col == (piece.col-2):
+            rook_pos_after = (row,col+1)
+            rook = self.board.get_piece(row, 0)
+            castle = True
+        if typo == 'King' and castle:
+            MoveLogInstanse.append((rook, (rook.row,rook.col), rook_pos_after))
+            self.board.move(rook, rook_pos_after[0], rook_pos_after[1])
         if iep:
             print('En passant')
             MoveLogInstanse.append((iep_piece, (iep_piece.row, iep_piece.col), (-1,-1)))
@@ -64,7 +78,6 @@ class Game:
             self.remove(piece_at_pos)
         self.MoveLog.append(MoveLogInstanse)
         self.board.move(piece, row, col)
-        typo = type(piece).__name__
         if typo == 'Pawn' and piece.color == WHITE and piece.row == 0:
             temp_piece = Queen(piece.row, piece.col, piece.color)
             self.board.pieces.remove(piece)
@@ -78,15 +91,23 @@ class Game:
     def unmove(self):
         if len(self.MoveLog)!=0:
             last_moves = self.MoveLog.pop(len(self.MoveLog)-1)
+            print(last_moves)
+            print(len(self.board.pieces))
             for move in last_moves:
+                print('moving it to:')
+                print(move[1])
                 r, c = move[1]
                 if move[2] == (-1,-1):
+                    print('adding piece back')
                     self.board.pieces.append(move[0])
                 if not(move[0] in self.board.pieces):
+                    print('not on board')
                     piece_at = self.board.get_piece(move[0].row, move[0].col)
                     self.remove(piece_at)
                     self.board.pieces.append(move[0])
+                print('returning piece at (%i,%i) to (%i,%i)'%(move[0].row,move[0].col,r,c))
                 self.move(move[0], r, c)
+            print(len(self.board.pieces))
             #self.update()
     
     def get_pos_off_pieces(self, color):
@@ -393,6 +414,7 @@ class Game:
         else:
             return False
     def check_mate(self,color):
+        return False
         pieces = self.get_pieces(color)
         for piece in pieces:
             pos_next_pos = self.possible_next_pos(piece)
@@ -406,6 +428,7 @@ class Game:
     
     #not working properly yet
     def stale_mate(self, color):
+        return False
         pieces = self.get_pieces(color)
         for piece in pieces:
             pos_next_pos = self.possible_next_pos_after_move(piece)
@@ -975,8 +998,14 @@ class Game:
             valid_moves = self.get_valid_moves(self.selected)
             piece_row = self.selected.row
             piece_col = self.selected.col
+            if self.can_castle(self.selected.color, 'r'):
+                valid_moves.append((0,2))
+            if self.can_castle(self.selected.color, 'l'):
+                valid_moves.append((0,-2))
             move = (r-piece_row,c-piece_col)
+            print('attempting to make move: (%i,%i)'% (move[0],move[1]))
             results_in_check = self.results_in_check(self.selected, r, c)
+            print(valid_moves)
             if move in valid_moves and not(results_in_check):
                 self.move(self.selected,r,c)
                 print('piece has been moved to (%i,%i)'%(r,c))
