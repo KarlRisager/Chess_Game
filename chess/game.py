@@ -70,7 +70,6 @@ class Game:
             MoveLogInstanse.append((rook, (rook.row,rook.col), rook_pos_after))
             self.board.move(rook, rook_pos_after[0], rook_pos_after[1])
         if iep:
-            print('En passant')
             MoveLogInstanse.append((iep_piece, (iep_piece.row, iep_piece.col), (-1,-1)))
             self.remove(iep_piece)
         if piece_at_pos != None and piece_at_pos.color != color:
@@ -91,23 +90,15 @@ class Game:
     def unmove(self):
         if len(self.MoveLog)!=0:
             last_moves = self.MoveLog.pop(len(self.MoveLog)-1)
-            print(last_moves)
-            print(len(self.board.pieces))
             for move in last_moves:
-                print('moving it to:')
-                print(move[1])
                 r, c = move[1]
                 if move[2] == (-1,-1):
-                    print('adding piece back')
                     self.board.pieces.append(move[0])
                 if not(move[0] in self.board.pieces):
-                    print('not on board')
                     piece_at = self.board.get_piece(move[0].row, move[0].col)
                     self.remove(piece_at)
                     self.board.pieces.append(move[0])
-                print('returning piece at (%i,%i) to (%i,%i)'%(move[0].row,move[0].col,r,c))
-                self.move(move[0], r, c)
-            print(len(self.board.pieces))
+                self.board.move(move[0], r, c)
             #self.update()
     
     def get_pos_off_pieces(self, color):
@@ -414,7 +405,7 @@ class Game:
         else:
             return False
     def check_mate(self,color):
-        return False
+        #return False
         pieces = self.get_pieces(color)
         for piece in pieces:
             pos_next_pos = self.possible_next_pos(piece)
@@ -428,7 +419,7 @@ class Game:
     
     #not working properly yet
     def stale_mate(self, color):
-        return False
+        #return False
         pieces = self.get_pieces(color)
         for piece in pieces:
             pos_next_pos = self.possible_next_pos_after_move(piece)
