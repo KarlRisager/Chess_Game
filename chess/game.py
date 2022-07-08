@@ -101,6 +101,30 @@ class Game:
                 self.board.move(move[0], r, c)
             #self.update()
     
+    def calc_score(self, color):
+        score = 0
+        pieces = self.get_pieces(color)
+        for piece in pieces:
+            typo = type(piece).__name__
+            if typo == 'Pawn':
+                score += 10
+            elif typo == 'Knight':
+                score += 30
+            elif typo == 'Bishop':
+                score += 30
+            elif typo == 'Rook':
+                score += 50
+            elif typo == 'Queen':
+                score += 90
+            elif typo == 'King':
+                score += 900
+        return score
+
+
+    def eval_board(self, maximizing_color):
+        return self.calc_score(maximizing_color) - self.calc_score(self.op(maximizing_color))
+
+
     def get_pos_off_pieces(self, color):
         '''Returns a list of positions of pieces, that have the color color'''
         lst = []
